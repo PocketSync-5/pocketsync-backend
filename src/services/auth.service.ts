@@ -1,12 +1,41 @@
-import { AuthResponse, LoginInput } from "../interfaces/auth.interface";
+import { AuthResponse, LoginInput, RegisterInput } from "../interfaces/auth.interface";
+import { createUser, findUserByEmail } from "../data/user.store";
 
+import { ConflictError } from "../errors/conflict.error";
 import { JwtUtil } from "../utils/jwt.utils";
 import { UnauthorizedError } from "../errors/unauthorized.error";
 import bcrypt from "bcryptjs";
-import { findUserByEmail } from "../data/user.store";
 
 export class AuthService {
-  
+  /**
+   * Register a new user.
+   * - Checks for duplicate emails (case-insensitive).
+   * - Hashes the password via bcrypt (inside createUser).
+   * - Issues a JWT so the user is logged in immediately after signup.
+   */
+  static async register({ fullname, email, password }: RegisterInput): Promise<AuthResponse> {
+    const normalizedEmail = email.toLowerCase().trim();
+
+    // Reject if a user with this email already exists.
+    const existing = findUserByEmail(normalizedEmail);
+    if (existing) {
+      throw new ConflictError("Email is already in use");
+    }
+
+    const user = createUser({
+      fullname,
+      email: normalizedEmail,
+      password,
+    });
+
+    const token = JwtUtil.generateToken({ userId: user.id, email: user.email });
+
+    return {
+      token,
+      user: { id: user.id, email: user.email, fullname: user.fullname },
+    };
+  }
+
   static async login({ email, password }: LoginInput): Promise<AuthResponse> {
     const normalizedEmail = email.toLowerCase().trim();
 
