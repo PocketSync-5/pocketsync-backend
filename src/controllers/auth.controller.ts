@@ -24,4 +24,19 @@ export class AuthController {
       next(err);
     }
   }
+
+  // GET /api/auth/me  (protected — requires a valid Bearer token)
+  static async me(req: Request, res: Response, next: NextFunction) {
+    try {
+      // `currentUser` is populated by the `requireAuth` middleware.
+      const currentUser = req.currentUser;
+
+      return res.status(200).json({
+        message: "Authenticated",
+        user: currentUser,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
 }

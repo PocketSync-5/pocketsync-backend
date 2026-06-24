@@ -19,8 +19,8 @@ app.get("/health", (_req: Request, res: Response) => {
   res.status(200).json({ status: "ok" });
 });
 
-// Routes
-app.use("/api/auth", authRoutes);
+// Routes (versioned: bump /v1 → /v2 here when releasing breaking changes)
+app.use("/api/v1/auth", authRoutes);
 
 // 404 handler for unmatched routes
 app.use((_req: Request, res: Response) => {
