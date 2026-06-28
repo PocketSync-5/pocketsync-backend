@@ -7,12 +7,7 @@ import { UnauthorizedError } from "../errors/unauthorized.error";
 import bcrypt from "bcryptjs";
 
 export class AuthService {
-  /**
-   * Register a new user.
-   * - Checks for duplicate emails (case-insensitive).
-   * - Hashes the password via bcrypt (inside createUser).
-   * - Issues a JWT so the user is logged in immediately after signup.
-   */
+
   static async register({ fullname, email, password }: RegisterInput): Promise<AuthResponse> {
     const normalizedEmail = email.toLowerCase().trim();
 
