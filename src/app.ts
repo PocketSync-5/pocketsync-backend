@@ -4,6 +4,7 @@ import { authRoutes } from "./routes/auth.routes";
 import cors from "cors";
 import dotenv from "dotenv";
 import { errorHandler } from "./middleware/error.middleware";
+import { profileRoutes } from "./routes/profile.routes";
 
 // Load .env into process.env (JWT_SECRET is validated inside jwt.utils.ts).
 dotenv.config();
@@ -21,6 +22,7 @@ app.get("/health", (_req: Request, res: Response) => {
 
 // Routes (versioned: bump /v1 → /v2 here when releasing breaking changes)
 app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/profile", profileRoutes);
 
 // 404 handler for unmatched routes
 app.use((_req: Request, res: Response) => {
