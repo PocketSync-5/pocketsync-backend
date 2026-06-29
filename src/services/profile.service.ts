@@ -1,5 +1,8 @@
 import { Profile, SafeProfile } from "../models/profile.model";
+import { Account, SafeAccount } from "../models/account.model";
 import { createProfile, findProfileByUserId, updateProfile } from "../data/profile.store";
+import { findAccountsByBvn } from "../data/account.store";
+import { getSelection } from "../data/selection.store";
 import {
   isValidBVN,
   isValidDOB,
@@ -9,20 +12,23 @@ import {
 
 import { BadRequestError } from "../errors/badRequest.error";
 import { NotFoundError } from "../errors/notFound.error";
-import { UpdateProfileInput } from "../interfaces/profile.interface";
+import {
+  ProfileResponse,
+  UpdateProfileInput,
+} from "../interfaces/profile.interface";
 
 export class ProfileService {
-  // GET — return current user's profile (masked)
-  static getProfile(userId: string): SafeProfile {
+  // GET — return current user's profile (masked), with accounts if a BVN is set
+  static getProfile(userId: string): ProfileResponse {
     const profile = findProfileByUserId(userId);
     if (!profile) {
       throw new NotFoundError("Profile not found");
     }
-    return ProfileService.toSafe(profile);
+    return ProfileService.buildResponse(profile);
   }
 
   // POST — create a new profile for the authenticated user
-  static createProfile(userId: string, input: UpdateProfileInput): SafeProfile {
+  static createProfile(userId: string, input: UpdateProfileInput): ProfileResponse {
     if (findProfileByUserId(userId)) {
       throw new BadRequestError("Profile already exists — use PATCH to update");
     }
@@ -30,11 +36,11 @@ export class ProfileService {
     ProfileService.validate(input);
 
     const created = createProfile({ userId, ...input });
-    return ProfileService.toSafe(created);
+    return ProfileService.buildResponse(created);
   }
 
   // PATCH — upsert: create if missing, update if it exists
-  static upsertProfile(userId: string, input: UpdateProfileInput): SafeProfile {
+  static upsertProfile(userId: string, input: UpdateProfileInput): ProfileResponse {
     ProfileService.validate(input);
 
     const existing = findProfileByUserId(userId);
@@ -42,7 +48,7 @@ export class ProfileService {
       ? updateProfile(userId, input)!
       : createProfile({ userId, ...input });
 
-    return ProfileService.toSafe(result);
+    return ProfileService.buildResponse(result);
   }
 
   // ---- helpers -------------------------------------------------------
@@ -62,12 +68,44 @@ export class ProfileService {
     }
   }
 
-  // Mask sensitive fields before returning to the client.
+  // Mask sensitive profile fields before returning to the client.
   private static toSafe(profile: Profile): SafeProfile {
     return {
       ...profile,
       nin: profile.nin ? "********" + profile.nin.slice(-3) : undefined,
       bvn: profile.bvn ? "********" + profile.bvn.slice(-3) : undefined,
+    };
+  }
+
+  // Build the full profile response. When a BVN is present, the linked
+  // accounts (masked) are attached so the client can render the account
+  // selection screen immediately. `selectedAccountIds` reflects the user's
+  // saved selection, defaulting to ALL accounts when none is saved yet.
+  private static buildResponse(profile: Profile): ProfileResponse {
+    const safeProfile = ProfileService.toSafe(profile);
+
+    if (!profile.bvn) {
+      return { profile: safeProfile };
+    }
+
+    const universe = findAccountsByBvn(profile.bvn);
+    const allIds = universe.map((a) => a.id);
+    const savedSelection = getSelection(profile.userId);
+    const selectedIds = savedSelection ?? allIds;
+
+    return {
+      profile: safeProfile,
+      accounts: universe.map(ProfileService.toSafeAccount),
+      selectedAccountIds: selectedIds,
+    };
+  }
+
+  // Mask an account's sensitive fields (mirrors the dashboard service masking).
+  private static toSafeAccount(account: Account): SafeAccount {
+    return {
+      ...account,
+      bvn: "********" + account.bvn.slice(-3),
+      accountNumber: "******" + account.accountNumber.slice(-4),
     };
   }
 }

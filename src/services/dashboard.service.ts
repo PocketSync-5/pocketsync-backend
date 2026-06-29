@@ -1,37 +1,52 @@
 import { Account, SafeAccount } from "../models/account.model";
 import { findAccountsByBvn } from "../data/account.store";
+import { findProfileByUserId } from "../data/profile.store";
+import { getSelection } from "../data/selection.store";
 
 import { BadRequestError } from "../errors/badRequest.error";
 import { NotFoundError } from "../errors/notFound.error";
-import { isValidBVN } from "../utils/validators";
 import { DashboardResponse } from "../interfaces/dashboard.interface";
 
 export class DashboardService {
-  // GET — aggregated view of every account linked to the given BVN.
-  static getDashboard(bvn: string): DashboardResponse {
-    // The bvn comes from the URL param, so validate it before doing anything.
-    if (!bvn || !isValidBVN(bvn)) {
-      throw new BadRequestError("BVN must be exactly 11 digits");
+  // GET — aggregated view of the logged-in user's SELECTED accounts.
+  // The BVN is derived from the user's profile (never from the request), so a
+  // user can only ever see accounts that belong to them. If the user hasn't
+  // explicitly chosen a subset, ALL their accounts are shown by default.
+  static getDashboard(userId: string): DashboardResponse {
+    const profile = findProfileByUserId(userId);
+    if (!profile) {
+      throw new NotFoundError("Profile not found — create a profile first");
+    }
+    if (!profile.bvn) {
+      throw new BadRequestError("Add your BVN to your profile to view your dashboard");
     }
 
-    const accounts = findAccountsByBvn(bvn);
-
-    // No accounts = nothing to aggregate. 404 is more accurate than an empty 200.
-    if (accounts.length === 0) {
+    // universe = every account linked to this user's BVN (raw bvn, from storage)
+    const universe = findAccountsByBvn(profile.bvn);
+    if (universe.length === 0) {
       throw new NotFoundError("No accounts found for this BVN");
     }
 
-    // totalBalance is COMPUTED here from each account's balance — it is never
-    // stored, so it is always in sync with the underlying accounts.
-    const totalBalance = accounts.reduce((sum, a) => sum + a.balance, 0);
+    // No saved selection → treat as "all selected" so the first view isn't empty.
+    const allIds = universe.map((a) => a.id);
+    const savedSelection = getSelection(userId);
+    const selectedIds = savedSelection ?? allIds;
+
+    // Defensive: drop any IDs that aren't in the current universe (e.g. the
+    // user changed their BVN). Always re-validate ownership on read.
+    const displayed = universe.filter((a) => selectedIds.includes(a.id));
+
+    // totalBalance reflects ONLY the displayed (selected) accounts.
+    const totalBalance = displayed.reduce((sum, a) => sum + a.balance, 0);
 
     return {
-      bvn: DashboardService.maskBvn(bvn),
-      accountName: accounts[0].accountName, // accounts share a bvn → same holder
-      accounts: accounts.map(DashboardService.toSafe),
+      bvn: DashboardService.maskBvn(profile.bvn),
+      accountName: universe[0].accountName,
+      accounts: displayed.map(DashboardService.toSafe),
       totalBalance,
-      currency: accounts[0].currency,
-      accountCount: accounts.length,
+      currency: universe[0].currency,
+      accountCount: displayed.length,
+      selectedAccountIds: selectedIds.filter((id) => allIds.includes(id)),
     };
   }
 
