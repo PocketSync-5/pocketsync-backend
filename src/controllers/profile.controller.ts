@@ -8,8 +8,8 @@ export class ProfileController {
   static async getProfile(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = req.currentUser!.userId;
-      const profile = ProfileService.getProfile(userId);
-      return res.status(200).json({ profile });
+      const response = ProfileService.getProfile(userId);
+      return res.status(200).json(response);
     } catch (err) {
       next(err);
     }
@@ -20,8 +20,8 @@ export class ProfileController {
     try {
       const userId = req.currentUser!.userId;
       const input: UpdateProfileInput = req.body ?? {};
-      const profile = ProfileService.createProfile(userId, input);
-      return res.status(201).json({ profile });
+      const response = ProfileService.createProfile(userId, input);
+      return res.status(201).json(response);
     } catch (err) {
       next(err);
     }
@@ -32,8 +32,8 @@ export class ProfileController {
     try {
       const userId = req.currentUser!.userId;
       const input: UpdateProfileInput = req.body ?? {};
-      const profile = ProfileService.upsertProfile(userId, input);
-      return res.status(200).json({ profile });
+      const response = ProfileService.upsertProfile(userId, input);
+      return res.status(200).json(response);
     } catch (err) {
       next(err);
     }

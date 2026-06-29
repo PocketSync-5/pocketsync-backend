@@ -1,0 +1,246 @@
+import { Account } from "../models/account.model";
+
+// ─────────────────────────────────────────────────────────────
+// In-memory account store (placeholder).
+// Replace this with a real DB (Prisma/Mongoose/SQL) later — the
+// DashboardService only depends on the helpers below, so swapping the
+// source is easy.
+//
+// NOTE: the REAL bvn is stored here in plain text so lookups can match.
+// Masking happens only at the response layer (see dashboard.service.ts).
+// That is also what makes these seed values usable for testing — you can
+// read the exact bvn to use right here, e.g. John Doe → 98765432109.
+// ─────────────────────────────────────────────────────────────
+
+export const accounts: Account[] = [
+  // ===== John Doe — BVN 98765432109 (4 accounts) =====
+  {
+    id: "acc-1",
+    bvn: "98765432109",
+    accountName: "JOHN DOE",
+    bankName: "Opay",
+    accountNumber: "8098765432",
+    accountType: "savings",
+    balance: 450000,
+    currency: "NGN",
+    createdAt: "2026-01-12T09:30:00.000Z",
+    updatedAt: "2026-06-28T14:05:00.000Z",
+  },
+  {
+    id: "acc-2",
+    bvn: "98765432109",
+    accountName: "JOHN DOE",
+    bankName: "Moniepoint",
+    accountNumber: "9021345678",
+    accountType: "savings",
+    balance: 120000,
+    currency: "NGN",
+    createdAt: "2026-02-03T11:00:00.000Z",
+    updatedAt: "2026-06-29T08:15:00.000Z",
+  },
+  {
+    id: "acc-3",
+    bvn: "98765432109",
+    accountName: "JOHN DOE",
+    bankName: "Access Bank",
+    accountNumber: "0123456789",
+    accountType: "savings",
+    balance: 850000,
+    currency: "NGN",
+    createdAt: "2025-11-20T08:45:00.000Z",
+    updatedAt: "2026-06-27T16:40:00.000Z",
+  },
+  {
+    id: "acc-4",
+    bvn: "98765432109",
+    accountName: "JOHN DOE",
+    bankName: "Kuda Bank",
+    accountNumber: "2009876543",
+    accountType: "current",
+    balance: 320000,
+    currency: "NGN",
+    createdAt: "2026-03-15T13:20:00.000Z",
+    updatedAt: "2026-06-29T07:50:00.000Z",
+  },
+
+  // ===== Adeleke Obi — BVN 11122233344 (4 accounts) =====
+  {
+    id: "acc-5",
+    bvn: "11122233344",
+    accountName: "ADELEKE OBI",
+    bankName: "Zenith Bank",
+    accountNumber: "3021456789",
+    accountType: "savings",
+    balance: 1200000,
+    currency: "NGN",
+    createdAt: "2025-09-05T10:00:00.000Z",
+    updatedAt: "2026-06-26T12:30:00.000Z",
+  },
+  {
+    id: "acc-6",
+    bvn: "11122233344",
+    accountName: "ADELEKE OBI",
+    bankName: "Access Bank",
+    accountNumber: "0056789012",
+    accountType: "current",
+    balance: 560000,
+    currency: "NGN",
+    createdAt: "2025-12-18T09:15:00.000Z",
+    updatedAt: "2026-06-28T18:10:00.000Z",
+  },
+  {
+    id: "acc-7",
+    bvn: "11122233344",
+    accountName: "ADELEKE OBI",
+    bankName: "FCMB",
+    accountNumber: "4012987654",
+    accountType: "savings",
+    balance: 340000,
+    currency: "NGN",
+    createdAt: "2026-01-22T14:45:00.000Z",
+    updatedAt: "2026-06-25T09:20:00.000Z",
+  },
+  {
+    id: "acc-8",
+    bvn: "11122233344",
+    accountName: "ADELEKE OBI",
+    bankName: "UBA",
+    accountNumber: "2109876543",
+    accountType: "savings",
+    balance: 780000,
+    currency: "NGN",
+    createdAt: "2025-10-30T11:30:00.000Z",
+    updatedAt: "2026-06-27T15:00:00.000Z",
+  },
+
+  // ===== Jane Gina — BVN 22233344455 (3 accounts) =====
+  {
+    id: "acc-9",
+    bvn: "22233344455",
+    accountName: "JANE GINA",
+    bankName: "Sterling Bank",
+    accountNumber: "0087654321",
+    accountType: "savings",
+    balance: 230000,
+    currency: "NGN",
+    createdAt: "2026-02-11T08:00:00.000Z",
+    updatedAt: "2026-06-29T06:45:00.000Z",
+  },
+  {
+    id: "acc-10",
+    bvn: "22233344455",
+    accountName: "JANE GINA",
+    bankName: "Palmpay",
+    accountNumber: "7001234567",
+    accountType: "savings",
+    balance: 95000,
+    currency: "NGN",
+    createdAt: "2026-03-02T16:20:00.000Z",
+    updatedAt: "2026-06-28T13:10:00.000Z",
+  },
+  {
+    id: "acc-11",
+    bvn: "22233344455",
+    accountName: "JANE GINA",
+    bankName: "Opay",
+    accountNumber: "8123456789",
+    accountType: "current",
+    balance: 410000,
+    currency: "NGN",
+    createdAt: "2026-01-08T10:30:00.000Z",
+    updatedAt: "2026-06-26T17:55:00.000Z",
+  },
+
+  // ===== Junior Oppong — BVN 33344455566 (4 accounts) =====
+  {
+    id: "acc-12",
+    bvn: "33344455566",
+    accountName: "JUNIOR OPPONG",
+    bankName: "UBA",
+    accountNumber: "2156789012",
+    accountType: "current",
+    balance: 670000,
+    currency: "NGN",
+    createdAt: "2025-08-14T09:10:00.000Z",
+    updatedAt: "2026-06-27T11:25:00.000Z",
+  },
+  {
+    id: "acc-13",
+    bvn: "33344455566",
+    accountName: "JUNIOR OPPONG",
+    bankName: "Moniepoint",
+    accountNumber: "9045678901",
+    accountType: "savings",
+    balance: 180000,
+    currency: "NGN",
+    createdAt: "2026-02-25T13:40:00.000Z",
+    updatedAt: "2026-06-28T19:05:00.000Z",
+  },
+  {
+    id: "acc-14",
+    bvn: "33344455566",
+    accountName: "JUNIOR OPPONG",
+    bankName: "Zenith Bank",
+    accountNumber: "3012345678",
+    accountType: "savings",
+    balance: 920000,
+    currency: "NGN",
+    createdAt: "2025-12-01T10:25:00.000Z",
+    updatedAt: "2026-06-29T05:30:00.000Z",
+  },
+  {
+    id: "acc-15",
+    bvn: "33344455566",
+    accountName: "JUNIOR OPPONG",
+    bankName: "FCMB",
+    accountNumber: "4098765432",
+    accountType: "savings",
+    balance: 250000,
+    currency: "NGN",
+    createdAt: "2026-01-19T15:00:00.000Z",
+    updatedAt: "2026-06-25T14:35:00.000Z",
+  },
+
+  // ===== Chioma Eze — BVN 44455566677 (3 accounts) =====
+  {
+    id: "acc-16",
+    bvn: "44455566677",
+    accountName: "CHIOMA EZE",
+    bankName: "Palmpay",
+    accountNumber: "7034567890",
+    accountType: "savings",
+    balance: 540000,
+    currency: "NGN",
+    createdAt: "2026-03-09T11:50:00.000Z",
+    updatedAt: "2026-06-28T08:20:00.000Z",
+  },
+  {
+    id: "acc-17",
+    bvn: "44455566677",
+    accountName: "CHIOMA EZE",
+    bankName: "Kuda Bank",
+    accountNumber: "2023456789",
+    accountType: "savings",
+    balance: 130000,
+    currency: "NGN",
+    createdAt: "2026-02-17T09:35:00.000Z",
+    updatedAt: "2026-06-27T20:15:00.000Z",
+  },
+  {
+    id: "acc-18",
+    bvn: "44455566677",
+    accountName: "CHIOMA EZE",
+    bankName: "Sterling Bank",
+    accountNumber: "0098765432",
+    accountType: "current",
+    balance: 360000,
+    currency: "NGN",
+    createdAt: "2025-11-28T12:10:00.000Z",
+    updatedAt: "2026-06-26T10:00:00.000Z",
+  },
+];
+
+// Look up every account linked to a BVN.
+export function findAccountsByBvn(bvn: string): Account[] {
+  return accounts.filter((a) => a.bvn === bvn);
+}
